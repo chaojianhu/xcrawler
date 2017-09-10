@@ -6,55 +6,39 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from collections import defaultdict
-from .helpers import run_hook_method
+import logging
+
+logger = logging.getLogger(__name__)
 
 
 class CrawlerEngine(object):
-    def __init__(self):
-        self._extensions = defaultdict(list)
-        self._pipelines = defaultdict(list)
-        self._spiders = []
+    def __init__(self, crawler):
+        self.crawler = crawler
+        self._scheduler = crawler.scheduler()
+        self._downloader = crawler.downloader()
+        self._spiders = {}
 
     def start(self):
-        pass
+        logger.info('Start crawler engine')
+        self.crawler.on_crawler_started()
+        for s in self.spiders:
+            self.crawler.on_spider_started(s)
 
     def stop(self):
-        pass
+        logger.info('Start crawler engine')
+        self.crawler.on_crawler_stopped()
+        for s in self.spiders:
+            self.crawler.on_spider_stopped(s)
+
+    def spider_idle(self, spider):
+        logger.debug('Spider {} is idle'.format(spider))
+        self.crawler.on_spider_idle(spider)
 
     @property
     def spiders(self):
-        pass
+        return self._spiders.values()
 
     def crawl(self, spider_klass, *args, **kwargs):
-        pass
-
-    @property
-    def extensions(self):
-        pass
-
-    def add_extension(self, ext, priority, bind_spiders):
-        pass
-
-    @property
-    def pipelines(self):
-        pass
-
-    def add_pipeline(self, pipe, priority, bind_spiders):
-        pass
-
-    def _on_spider_started(self, spider):
-        run_hook_method(self.spiders, 'on_spider_started', spider)
-        run_hook_method(self.extensions, 'on_spider_started', spider)
-        run_hook_method(self.pipelines, 'on_spider_started', spider)
-
-    def _on_spider_stopped(self, spider):
-        run_hook_method(self.spiders, 'on_spider_stopped', spider)
-        run_hook_method(self.extensions, 'on_spider_stopped', spider)
-        run_hook_method(self.pipelines, 'on_spider_stopped', spider)
-
-    def _on_spider_idle(self, spider):
-        run_hook_method(self.spiders, 'on_spider_idle', spider)
-        run_hook_method(self.extensions, 'on_spider_idle', spider)
-        run_hook_method(self.pipelines, 'on_spider_idle', spider)
-
+        spider = spider_klass(*args, **kwargs)
+        setattr(spider, 'crawler', self.crawler)
+        self._spiders[spider.name] = spider

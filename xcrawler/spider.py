@@ -20,7 +20,7 @@ class BaseSpider(object):
     custom_settings = {}
 
     def __init__(self):
-        pass
+        self.crawler = None
 
     def __repr__(self):
         return '<{} name="{}">'.format(self.__class__.__name__, self.name)

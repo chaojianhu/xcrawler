@@ -11,7 +11,7 @@ from urllib.error import URLError
 from .errors import InvalidURLError
 
 __all__ = ['url_fingerprint', 'safe_url', 'base_url',
-           'run_hook_method']
+           'run_hook_method', 'dict_keys_to_upper']
 
 
 ##################################
@@ -78,3 +78,16 @@ def run_hook_method(objs, method_name, *method_args, **method_kwargs):
             method(*method_args, **method_kwargs)
 
     return None
+
+
+##################################
+# Misc
+##################################
+
+def dict_keys_to_upper(d):
+    if not d:
+        return {}
+    try:
+        return {k.upper(): v for k, v in d.items()}
+    except AttributeError:
+        return d

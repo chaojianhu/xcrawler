@@ -9,18 +9,20 @@
 from xcrawler import Crawler
 from xcrawler.extensions.default_useragent import DefaultUserAgentExtension
 from examples.douban.spiders.movie_info import DoubanMovieSpider
+from examples.douban.pipelines import JsonLineStoragePipeline
 
 
 def main():
     settings = {
-        'DOWNLOAD_TIMEOUT': 16,
-        'DOWNLOAD_DELAY': .5,
-        'CONCURRENT_REQUESTS': 10,
-        'DEFAULT_USER_AGENT': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) '
+        'download_timeout': 16,
+        'download_delay': .5,
+        'concurrent_requests': 10,
+        'storage_path': '/tmp/hello.jl',
+        'default_user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) '
                               'AppleWebKit/603.3.8 (KHTML, like Gecko) Version'
                               '/10.1.2 Safari/603.3.8',
-        'INSTALLED_EXTENSIONS': [DefaultUserAgentExtension],
-        'INSTALLED_PIPELINES': []
+        'global_extensions': {0: DefaultUserAgentExtension},
+        'global_pipelines': {0: JsonLineStoragePipeline}
 
     }
     crawler = Crawler('DEBUG', **settings)
