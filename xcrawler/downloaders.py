@@ -7,13 +7,13 @@
 """
 
 import requests
+import logging
 from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
 from .errors import (UnsupportedRequestMethod, HTTPTimeoutError,
                      HTTPStatusError, HTTPConnectionError)
 from .http import Request, Response
 
-__all__ = ['ThreadPoolDownloader', 'ProcessPoolDownloader',
-           'GeventDownloader', 'BaseDownloader']
+logger = logging.getLogger(__name__)
 
 
 class BaseDownloader(object):
@@ -23,7 +23,8 @@ class BaseDownloader(object):
             download_timeout is not None else 60
 
     def download(self, reqs=None):
-        raise NotImplementedError
+        for req in reqs:
+            yield self.send_request(req)
 
     def send_request(self, req):
         if req is None:
@@ -32,6 +33,7 @@ class BaseDownloader(object):
         assert isinstance(req, Request)
 
         try:
+            logger.debug('Send request: {}'.format(req))
             if req.method == 'GET':
                 resp = requests.get(req.url, headers=req.headers,
                                     cookies=req.cookies,
@@ -88,11 +90,23 @@ class ProcessPoolDownloader(BaseDownloader):
                 yield future.result()
 
 
-class GeventDownloader(BaseDownloader):
-    def download(self, reqs=None):
-        return NotImplemented
+try:
+    from gevent.pool import Group
+except ImportError:
+    class GeventDownloader(BaseDownloader):
+        pass
+else:
+    from gevent import monkey, spawn
+    from gevent.pool import Pool
+    from gevent.queue import Queue
 
 
-class CoroutineDownloader(BaseDownloader):
-    def download(self, reqs=None):
-        return NotImplemented
+    class GeventDownloader(BaseDownloader):
+        def __init__(self, max_workers=None, download_timeout=None):
+            super().__init__(max_workers, download_timeout)
+
+        def download(self, reqs=None):
+            pass
+
+__all__ = ['ThreadPoolDownloader', 'ProcessPoolDownloader',
+           'GeventDownloader', 'BaseDownloader']

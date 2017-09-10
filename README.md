@@ -33,36 +33,92 @@ I'm very interested in web crawling, however, I'm just a newbie to web scraping.
 # Quick start
 1. Define your own spider:
 
-```
-from xyz import BaseSpider
+    ```
+    from xcrawler import BaseSpider
 
-class FooSpider(BaseSpider):
-    pass
-```
+
+    class DoubanMovieSpider(BaseSpider):
+        name = 'douban_movie'
+        custom_settings = {}
+        start_urls = ['https://movie.douban.com']
+
+        def parse(self, response):
+            # extract items from response
+            # yield new requests
+            # yield new items
+            pass
+    ```
+
+1. Define your own extension:
+
+    ```
+    class DefaultUserAgentExtension(object):
+        config_key = 'DEFAULT_USER_AGENT'
+
+        def __init__(self):
+            self._user_agent = ''
+
+        def on_crawler_started(self, crawler):
+            if self.config_key in crawler.settings:
+                self._user_agent = crawler.settings[self.config_key]
+
+        def process_request(self, request, spider):
+            if not request or 'User-Agent' in request.headers or not self._user_agent:
+                return request
+
+            logger.debug('[{}]{} adds default user agent: '
+                         '{!r}'.format(spider, request, self._user_agent))
+            request.headers['User-Agent'] = self._user_agent
+            return request
+    ```
+
+1. Define a pipeline to store scraped items:
+
+    ```
+    class JsonLineStoragePipeline(object):
+        def __init__(self):
+            self._file = None
+
+        def on_crawler_started(self, crawler):
+            path = crawler.settings.get('STORAGE_PATH', '')
+            if not path:
+                raise FileNotFoundError('missing config key: `STORAGE_PATH`')
+
+            self._file = open(path, 'a+')
+
+        def on_crawler_stopped(self, crawler):
+            if self._file:
+                self._file.close()
+
+        def process_item(self, item, request, spider):
+            if item and isinstance(item, dict):
+                self._file.writeline(json.dumps(item))
+    ```
 
 1. Config the crawler:
 
-```
-crawler = Crawler('INFO', concurrent_requests=30)
-```
+    ```
+    settings = {
+            'download_timeout': 16,
+            'download_delay': .5,
+            'concurrent_requests': 10,
+            'storage_path': '/tmp/hello.jl',
+            'default_user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) '
+                                  'AppleWebKit/603.3.8 (KHTML, like Gecko) Version'
+                                  '/10.1.2 Safari/603.3.8',
+            'global_extensions': {0: DefaultUserAgentExtension},
+            'global_pipelines': {0: JsonLineStoragePipeline}
 
-1. Add a pipeline to store items:
-
-```
-pipelines.add(PipelineClass)
-```
-
-1. Add your extension:
-
-```
-e
-```
+        }
+    crawler = Crawler('DEBUG', **settings)
+    crawler.crawl(DoubanMovieSpider)
+    ```
 
 1. Bingo, you are ready to go now:
 
-```
-crawler.start()
-```
+    ```
+    crawler.start()
+    ```
 
 
 # License

@@ -41,9 +41,12 @@ class Crawler(object):
         self._install_global_pipelines(global_pipelines)
 
     def _init_log(self):
-        logging.basicConfig(format='[%(asctime)s][%(module)s.%(lineno)d][%(levelname)s] %(message)s',
-                            datefmt='%Y-%m-%d %H:%M:%S',
-                            level=getattr(logging, self._loglevel, logging.DEBUG))
+        logging.basicConfig(format='[%(asctime)s][%(module)s.%(lineno)d]'
+                                   '[%(levelname)s] %(message)s',
+                            datefmt='%Y-%m-%d %H:%M:%S')
+        logging.getLogger('xcrawler').setLevel(level=getattr(logging,
+                                                             self._loglevel,
+                                                             logging.DEBUG))
 
     def _install_global_extensions(self, extensions):
         """Global extensions, enabled for all the spiders"""

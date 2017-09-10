@@ -11,15 +11,15 @@ import sys
 from distutils.core import setup
 
 if sys.version_info < (3, 4):
-    print('Sorry, supported python versions are Python 3.4+.')
+    print('Sorry, supported versions are Python 3.4+.')
     exit(1)
 
 setup(
     name='xcrawler',
-    version='0.0.4',
+    version='0.1.0',
     packages=['xcrawler'],
-    install_requires=['requests'],
-    url='https://www.github.com/chrisleegit/xcrawler',
+    install_requires=['requests', 'requests', 'gevent', 'beautifulsoup4'],
+    url='https://www.github.com/0xe8551ccb/xcrawler',
     license='MIT License',
     author='0xE8551CCB',
     author_email='christopherlee199398@gmail.com',
