@@ -3,22 +3,34 @@ xcrawler, a light-weight web crawler framework
 
 # Introduction
 [xcrawler](https://github.com/ChrisLeeGit/xcrawler), it's a light-weight web crawler framework. Some of its design concepts are borrowed from the well-known framework [Scrapy](https://github.com/scrapy).
-The downloader of the engine is implemented with the `requests` library. 
-
 I'm very interested in web crawling, however, I'm just a newbie to web scraping. I did this so that I can learn more basics of web crawling and Python language.
 
-
+![arch](http://blog.chriscabin.com/wp-content/uploads/2017/09/xcrawler-arch.png)
 
 # Features
-- Very simple;
-- Very easy to customize your own spider;
-- Process multiple requests and responses simultaneously.
+- Simple: extremely easy to customize your own spider;
+- Fast: multiple requests are spawned concurrently with the threading-downloader or gevent-downloader;
+- Flexible: different scheduling strategies are provided -- FIFO/FILO/Priority based;
+- Extensible: write your own extensions to make your crawler much more powerful.
 
-# TO-DO
-- [ ] Use priority queue instead;
-- [ ] Add docs and tests.
+# Install
+1. create a virtual environment for your project, then activate it:
 
-# Examples
+
+    ```
+    virtualenv crawlenv
+    source crawlenv/bin/activate
+    ```
+
+1. download and install this package:
+
+    ```
+    pip install git+https://github.com/0xE8551CCB/xcrawler.git
+    ```
+
+# Quick start
+
+
 ```
 class BaiduNewsSpider(BaseSpider):
     name = 'baidu_news_spider'
@@ -87,13 +99,6 @@ main()
 - ![log](http://blog.chriscabin.com/wp-content/uploads/2016/12/working.png)
 
 - ![results](http://blog.chriscabin.com/wp-content/uploads/2016/12/results.png)
-
-# Changelog
-
-## 2017-01-14
-1. Fix some known bugs of the engine.
-1. Use a **Bloom filter** instead of the set container, it's helpful for general crawling.
-1. Add a new general spider, and demonstrate how to get the basic information of a website.
 
 # License
 [xcrawler](https://github.com/ChrisLeeGit/xcrawler) is licensed under the MIT license, please feel free and happy crawling!

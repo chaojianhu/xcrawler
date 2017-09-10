@@ -17,7 +17,7 @@ if sys.version_info < (3, 4):
 setup(
     name='xcrawler',
     version='0.0.4',
-    packages=['xcrawler', 'pybloom'],
+    packages=['xcrawler'],
     install_requires=['requests'],
     url='https://www.github.com/chrisleegit/xcrawler',
     license='MIT License',
