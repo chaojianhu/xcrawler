@@ -51,27 +51,27 @@ I'm very interested in web crawling, however, I'm just a newbie to web scraping.
 
 1. Define your own extension:
 
-```
+    ```
 
-class DefaultUserAgentExtension(object):
-    config_key = 'DEFAULT_USER_AGENT'
+    class DefaultUserAgentExtension(object):
+        config_key = 'DEFAULT_USER_AGENT'
 
-    def __init__(self):
-        self._user_agent = ''
+        def __init__(self):
+            self._user_agent = ''
 
-    def on_crawler_started(self, crawler):
-        if self.config_key in crawler.settings:
-            self._user_agent = crawler.settings[self.config_key]
+        def on_crawler_started(self, crawler):
+            if self.config_key in crawler.settings:
+                self._user_agent = crawler.settings[self.config_key]
 
-    def process_request(self, request, spider):
-        if not request or 'User-Agent' in request.headers or not self._user_agent:
+        def process_request(self, request, spider):
+            if not request or 'User-Agent' in request.headers or not self._user_agent:
+                return request
+
+            logger.debug('[{}]{} adds default user agent: '
+                         '{!r}'.format(spider, request, self._user_agent))
+            request.headers['User-Agent'] = self._user_agent
             return request
-
-        logger.debug('[{}]{} adds default user agent: '
-                     '{!r}'.format(spider, request, self._user_agent))
-        request.headers['User-Agent'] = self._user_agent
-        return request
-```
+    ```
 
 1. Define a pipeline to store scraped items:
 
