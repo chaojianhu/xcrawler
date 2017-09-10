@@ -1,5 +1,7 @@
-xcrawler, a light-weight web crawler framework
+A light-weight web crawler framework: xcrawler
 ------------------------
+
+[![Build Status](https://www.travis-ci.org/0xE8551CCB/xcrawler.svg)](https://www.travis-ci.org/0xE8551CCB/xcrawler)
 
 # Introduction
 [xcrawler](https://github.com/ChrisLeeGit/xcrawler), it's a light-weight web crawler framework. Some of its design concepts are borrowed from the well-known framework [Scrapy](https://github.com/scrapy).
@@ -32,10 +34,16 @@ I'm very interested in web crawling, however, I'm just a newbie to web scraping.
 1. Define your own spider:
 
 ```
-from xyz import BasicSpider
+from xyz import BaseSpider
 
-class FooSpider(BasicSpider):
+class FooSpider(BaseSpider):
     pass
+```
+
+1. Config the crawler:
+
+```
+crawler = Crawler('INFO', concurrent_requests=30)
 ```
 
 1. Add a pipeline to store items:
@@ -44,16 +52,16 @@ class FooSpider(BasicSpider):
 pipelines.add(PipelineClass)
 ```
 
-1. Config the crawler:
+1. Add your extension:
 
 ```
-config.from_file('path/to/your/config')
+e
 ```
 
 1. Bingo, you are ready to go now:
 
 ```
-crawler.run()
+crawler.start()
 ```
 
 

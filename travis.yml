@@ -1,0 +1,13 @@
+language: python
+python:
+  - "3.4"
+  - "3.5"
+  - "3.6"
+
+install:
+  - pip install git+https://github.com/jaybaird/python-bloomfilter.git
+  - pip install lxml
+  - pip install beautifulsoup4
+
+script:
+  - python -m pytest --verbose tests

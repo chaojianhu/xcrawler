@@ -10,7 +10,8 @@ from urllib.parse import urlparse, urlencode, urlunsplit
 from urllib.error import URLError
 from .errors import InvalidURLError
 
-__all__ = ['url_fingerprint', 'safe_url', 'base_url']
+__all__ = ['url_fingerprint', 'safe_url', 'base_url',
+           'run_hook_method']
 
 
 ##################################
@@ -61,3 +62,19 @@ def base_url(url):
 
     parser = urlparse(url)
     return '://'.join((parser.scheme or 'http', parser.netloc))
+
+
+##################################
+# Hooks
+##################################
+
+def run_hook_method(objs, method_name, *method_args, **method_kwargs):
+    if not objs:
+        return None
+
+    for o in objs:
+        method = getattr(o, method_name, None)
+        if method and callable(method):
+            method(*method_args, **method_kwargs)
+
+    return None

@@ -21,7 +21,7 @@ class DefaultUserAgentExtension(object):
                            'AppleWebKit/603.3.8 (KHTML, like Gecko) Version' \
                            '/10.1.2 Safari/603.3.8'
 
-    def crawler_started(self, crawler):
+    def on_crawler_started(self, crawler):
         if self.config_key in crawler.settings:
             self._user_agent = crawler.settings[self.config_key]
 
