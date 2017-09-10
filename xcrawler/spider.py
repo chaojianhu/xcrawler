@@ -17,6 +17,7 @@ logger = logging.getLogger(__name__)
 class BaseSpider(object):
     name = ''
     start_urls = []
+    custom_settings = {}
 
     def __init__(self):
         pass

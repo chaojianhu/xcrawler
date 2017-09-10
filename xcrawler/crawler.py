@@ -31,6 +31,7 @@ class Crawler(object):
         return 'Crawler({!r}, {!r})'.format(self._loglevel, self.settings)
 
     def start(self):
+        logger.info('Start crawler process')
         self._engine.start()
 
     def _on_crawler_started(self):
@@ -39,6 +40,7 @@ class Crawler(object):
         run_hook_method(self._engine.pipelines, 'on_crawler_started', self)
 
     def stop(self):
+        logger.info('Stop crawler process')
         self._engine.stop()
 
     def _on_crawler_stopped(self):
@@ -47,13 +49,14 @@ class Crawler(object):
         run_hook_method(self._engine.pipelines, 'on_crawler_stopped', self)
 
     def crawl(self, spider_klass, *args, **kwargs):
+        logger.info('Crawl {!r}'.format(spider_klass.name))
         self._engine.crawl(spider_klass, *args, **kwargs)
 
-    def add_extension(self, extension, priority=0, bind_spiders=None):
+    def add_extension(self, extension, priority=0, bind_spider=None):
         """An extension with the lowest priority is the closest one
          to the crawler engine."""
         self._validate_extension(extension)
-        self._engine.add_extension(extension, priority, bind_spiders)
+        self._engine.add_extension(extension, priority, bind_spider)
 
     @staticmethod
     def _validate_extension(extension):
@@ -71,11 +74,11 @@ class Crawler(object):
         if not hasattr(extension, 'process_request'):
             raise InvalidExtensionError('missing method `{}`'.format('process_request'))
 
-    def add_pipeline(self, pipeline, priority=0, bind_spiders=None):
+    def add_pipeline(self, pipeline, priority=0, bind_spider=None):
         """A pipeline with the lowest priority is the closest one
         to the crawler engine"""
         self._validate_pipeline(pipeline)
-        self._engine.add_pipeline(pipeline, priority, bind_spiders)
+        self._engine.add_pipeline(pipeline, priority, bind_spider)
 
     @staticmethod
     def _validate_pipeline(pipeline):
@@ -95,5 +98,4 @@ class Crawler(object):
     def _init_log(self):
         logging.basicConfig(format='[%(asctime)s][%(module)s.%(lineno)d][%(levelname)s] %(message)s',
                             datefmt='%Y-%m-%d %H:%M:%S',
-                            level=getattr(logging, self._loglevel, logging.DEBUG),
-                            handlers=[logging.NullHandler])
+                            level=getattr(logging, self._loglevel, logging.DEBUG))
