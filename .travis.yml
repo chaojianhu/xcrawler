@@ -8,6 +8,7 @@ install:
   - pip install git+https://github.com/jaybaird/python-bloomfilter.git
   - pip install lxml
   - pip install beautifulsoup4
+  - pip install requests
 
 script:
   - python -m pytest --verbose tests
