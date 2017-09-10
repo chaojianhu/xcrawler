@@ -50,7 +50,7 @@ pipelines.add(PipelineClass)
 config.from_file('path/to/your/config')
 ```
 
-1. Bingo, you are ready to go:
+1. Bingo, you are ready to go now:
 
 ```
 crawler.run()
