@@ -15,4 +15,7 @@ class DoubanMovieSpider(BaseSpider):
     start_urls = ['https://movie.douban.com']
 
     def parse(self, response):
-        print(response)
+        # extract items from response
+        # yield new requests
+        # yield new items
+        pass
