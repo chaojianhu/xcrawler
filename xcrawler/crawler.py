@@ -11,8 +11,8 @@ from operator import itemgetter
 from collections import defaultdict
 
 from .engine import CrawlerEngine
-from .downloaders import ThreadingDownloader as DefaultDownloader
-from .schedulers.fifo import FIFOScheduler as DefaultScheduler
+from .downloaders import ThreadPoolDownloader as DefaultDownloader
+from .schedulers.priority import PriorityBasedScheduler as DefaultScheduler
 from .errors import InvalidExtensionError, InvalidPipelineError
 from .helpers import run_hook_method, dict_keys_to_upper
 
@@ -126,6 +126,7 @@ class Crawler(object):
         - :meth:`on_crawler_started`
         - :meth:`on_crawler_stopped`
         - :meth:`process_response`
+        - :meth:`process_http_error`
         """
         if not extension:
             raise InvalidExtensionError

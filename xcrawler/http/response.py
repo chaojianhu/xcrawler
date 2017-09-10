@@ -14,7 +14,8 @@ __all__ = ['Response']
 
 
 class Response(object):
-    def __init__(self, url, status, content, encoding, request, cookies=None, headers=None):
+    def __init__(self, url, status, content, encoding, request,
+                 cookies=None, headers=None, reason=''):
         self.request = request
         self.url = url
         self.base_url = base_url(url)
@@ -25,6 +26,7 @@ class Response(object):
         self.encoding = encoding
         self.meta = request.meta
         self.callback = request.callback
+        self.reason = reason
 
     @property
     def text(self):
@@ -37,4 +39,5 @@ class Response(object):
         return urljoin(self.base_url, url)
 
     def __repr__(self):
-        return '<Response {!r}: {}>'.format(self.url, self.status)
+        return '<[{}]Response {!r}: {}>'.format(self.request.spider.name,
+                                                self.url, self.status)

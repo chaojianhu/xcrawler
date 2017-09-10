@@ -33,3 +33,23 @@ class DroppedRequest(Error):
 
 class DroppedResponse(Error):
     pass
+
+
+class UnsupportedRequestMethod(Error):
+    pass
+
+
+class HTTPError(Error):
+    pass
+
+
+class HTTPTimeoutError(HTTPError):
+    pass
+
+
+class HTTPStatusError(HTTPError):
+    pass
+
+
+class HTTPConnectionError(HTTPError):
+    pass
