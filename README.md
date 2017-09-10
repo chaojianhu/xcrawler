@@ -52,7 +52,6 @@ I'm very interested in web crawling, however, I'm just a newbie to web scraping.
 1. Define your own extension:
 
     ```
-
     class DefaultUserAgentExtension(object):
         config_key = 'DEFAULT_USER_AGENT'
 
