@@ -1,7 +1,7 @@
 A light-weight web crawler framework: xcrawler
 ------------------------
 
-[![Build Status](https://www.travis-ci.org/0xE8551CCB/xcrawler.svg)](https://www.travis-ci.org/0xE8551CCB/xcrawler)
+[![Build Status](https://www.travis-ci.org/0xE8551CCB/xcrawler.svg?branch=feature-refactor-architecture)](https://www.travis-ci.org/0xE8551CCB/xcrawler)
 
 # Introduction
 [xcrawler](https://github.com/ChrisLeeGit/xcrawler), it's a light-weight web crawler framework. Some of its design concepts are borrowed from the well-known framework [Scrapy](https://github.com/scrapy).
