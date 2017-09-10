@@ -1,5 +1,5 @@
 """
-    thread_downloader
+    __init__.py
     ~~~~~~~~~~~~~~
     
     :copyright: (c) 2017 by 0xE8551CCB.

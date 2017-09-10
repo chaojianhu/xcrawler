@@ -7,6 +7,9 @@
 """
 
 import logging
+from .engine import CrawlerEngine
+from .downloaders import ThreadingDownloader as Downloader
+from .schedulers.fifo import FIFOScheduler as Scheduler
 from .errors import InvalidExtensionError, InvalidPipelineError
 
 __all__ = ['Crawler']
@@ -15,11 +18,16 @@ logger = logging.getLogger(__name__)
 
 
 class Crawler(object):
-    def __init__(self, settings=None, loglevel='DEBUG'):
+    def __init__(self, loglevel='DEBUG', **kwargs):
         self._loglevel = loglevel
-        self.settings = settings
-        self._engine = None
+        self.settings = kwargs
+        self._scheduler_klass = Scheduler
+        self._downloader_klass = Downloader
+        self._engine = CrawlerEngine()
         self._init_log()
+
+    def __repr__(self):
+        return 'Crawler({!r}, {!r})'.format(self._loglevel, self.settings)
 
     def start(self):
         self._engine.start()
@@ -27,8 +35,8 @@ class Crawler(object):
     def stop(self):
         self._engine.stop()
 
-    def crawl(self, spider_class, *args, **kwargs):
-        self._engine.add(spider_class, *args, **kwargs)
+    def crawl(self, spider_klass, *args, **kwargs):
+        self._engine.crawl(spider_klass, *args, **kwargs)
 
     def register_extension(self, extension, priority, bind_spiders=None):
         """An extension with the lowest priority is the closest one
@@ -36,7 +44,8 @@ class Crawler(object):
         self._validate_extension(extension)
         self._engine.add_extension()
 
-    def _validate_extension(self, extension):
+    @staticmethod
+    def _validate_extension(extension):
         """An extension must implements :meth:`process_request`.
         Other methods can be implemented:
         - :meth:`spider_started`
@@ -47,6 +56,9 @@ class Crawler(object):
         """
         if not extension:
             raise InvalidExtensionError
+
+        if not hasattr(extension, 'process_request'):
+            raise InvalidExtensionError('missing method `{}`'.format('process_request'))
 
     @staticmethod
     def _wrap_extension(extension, priority, bind_spiders):
@@ -59,7 +71,8 @@ class Crawler(object):
         to the crawler engine"""
         self._engine.add_pipeline(pipeline, priority, bind_spiders)
 
-    def _validate_pipeline(self, pipeline):
+    @staticmethod
+    def _validate_pipeline(pipeline):
         """A pipeline class must implements :meth:`process_item`.
         Other methods can be implemented:
         - :meth:`spider_started`
@@ -69,6 +82,9 @@ class Crawler(object):
         """
         if not pipeline:
             raise InvalidPipelineError
+
+        if not hasattr(pipeline, 'process_item'):
+            raise InvalidExtensionError('missing method `{}`'.format('process_item'))
 
     @staticmethod
     def _wrap_pipeline(pipeline, priority, bind_spiders=None):
