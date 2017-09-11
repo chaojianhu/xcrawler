@@ -34,3 +34,8 @@ class BaseSpider(object):
 
     def parse(self, response):
         raise NotImplementedError
+
+    def on_engine_idle(self, engine):
+        """You can add more requests to the engine by
+        calling :meth:`engine.append_request(req)`."""
+        pass

@@ -9,9 +9,9 @@
 import logging
 import threading
 import time
-
 from collections import deque, Mapping
-from queue import Queue, Full, Empty
+from queue import Queue, Empty
+
 from .http import Request, Response
 
 logger = logging.getLogger(__name__)
@@ -63,17 +63,20 @@ class CrawlerEngine(object):
                 not self._scheduler.is_full():
             spider = spiders.pop()
             try:
-                self.append_request(next(spider.start_requests()))
+                self.schedule_request(next(spider.start_requests()))
             except StopIteration:
                 continue
             else:
                 # push back to the deque for the next loop
                 spiders.appendleft(spider)
 
-    def append_request(self, req):
+    def schedule_request(self, req):
         req = self._process_request(req)
         if isinstance(req, Request):
             self._scheduler.add(req)
+
+    def append_request(self, req):
+        self._buffered_requests.append(req)
 
     def _run_downloader(self):
         def download():
@@ -124,24 +127,24 @@ class CrawlerEngine(object):
                     result = self._process_http_error(reqresp, err)
 
                 if isinstance(result, Request):
-                    self._buffered_requests.append(result)
+                    self.append_request(result)
                 elif isinstance(result, Response):
                     parsed_results = result.callback(result)
                     for item in parsed_results:
                         if isinstance(item, Request):
-                            self._buffered_requests.append(item)
+                            self.append_request(item)
                         elif isinstance(item, Mapping):
                             self._process_item(item, result.request)
 
             self._init_scheduler_with_seed_requests()
             self._next_batch_requests()
 
-        self.stop()
+        self._stop()
 
     def _next_batch_requests(self):
         while not self._scheduler.is_full():
             try:
-                self.append_request(self._buffered_requests.popleft())
+                self.schedule_request(self._buffered_requests.popleft())
             except IndexError:
                 continue
 
@@ -221,7 +224,7 @@ class CrawlerEngine(object):
             else:
                 return None
 
-    def stop(self):
+    def _stop(self):
         if not self._is_running:
             raise RuntimeError('Crawler engine has already stopped')
 
@@ -232,9 +235,9 @@ class CrawlerEngine(object):
         for s in self.spiders:
             self.crawler.on_spider_stopped(s)
 
-    def engine_idle(self, spider):
-        logger.debug('Engine {} is idle'.format(spider))
-        self.crawler.on_spider_idle(spider)
+    def engine_idle(self):
+        logger.debug('Engine is idle now'.format())
+        self.crawler.on_engine_idle()
 
     @property
     def spiders(self):
