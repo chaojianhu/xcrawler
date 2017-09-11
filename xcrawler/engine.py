@@ -22,6 +22,7 @@ class CrawlerEngine(object):
 
     def __init__(self, crawler):
         self._is_running = False
+        self._idle_timeout = crawler.settings.get('ENGINE_IDLE_TIMEOUT', 4)
         self.crawler = crawler
 
         self._concurrent_requests = crawler.settings.get('CONCURRENT_REQUESTS', 8)
@@ -112,6 +113,8 @@ class CrawlerEngine(object):
             time.sleep(.001)
 
     def _run_until_complete(self):
+        idle_count = 0
+
         while self._is_running:
             try:
                 reqresp, err = self._results_queue.get(timeout=1)
@@ -119,8 +122,12 @@ class CrawlerEngine(object):
                 if self._active_downloaders <= 0 and \
                         self._scheduler.is_empty() \
                         and len(self._buffered_requests) == 0:
-                    break
+                    idle_count += 1
+                    if idle_count > self._idle_timeout:
+                        break
+                    self.engine_idle()
             else:
+                idle_count = 0
                 if err is None:
                     result = self._process_response(reqresp)
                 else:
