@@ -8,7 +8,10 @@
 
 import requests
 import logging
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import (ThreadPoolExecutor,
+                                ProcessPoolExecutor,
+                                as_completed,
+                                TimeoutError)
 from .errors import (UnsupportedRequestMethod, HTTPTimeoutError,
                      HTTPStatusError, HTTPConnectionError)
 from .http import Request, Response
@@ -17,6 +20,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseDownloader(object):
+    name = 'base_downloader'
+
     def __init__(self, max_workers=None, download_timeout=None):
         self._max_workers = max_workers
         self._download_timeout = download_timeout if \
@@ -33,7 +38,7 @@ class BaseDownloader(object):
         assert isinstance(req, Request)
 
         try:
-            logger.debug('Send request: {}'.format(req))
+            logger.debug('[{}]Send request: {}'.format(self.name, req))
             if req.method == 'GET':
                 resp = requests.get(req.url, headers=req.headers,
                                     cookies=req.cookies,
@@ -63,20 +68,24 @@ class BaseDownloader(object):
 
 
 class ThreadPoolDownloader(BaseDownloader):
+    name = 'thread_pool_downloader'
+
     def download(self, reqs=None):
         if reqs is None:
             return None
 
         with ThreadPoolExecutor(self._max_workers) as executor:
-            futures = []
+            futures = {}
             for req in reqs:
-                futures.append(executor.submit(self.send_request, req))
+                futures[executor.submit(self.send_request, req)] = req
 
             for future in as_completed(futures):
                 yield future.result()
 
 
 class ProcessPoolDownloader(BaseDownloader):
+    name = 'process_pool_downloader'
+
     def download(self, reqs=None):
         if reqs is None:
             return None

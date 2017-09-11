@@ -21,6 +21,9 @@ logging.getLogger('xcrawler').setLevel(level=logging.DEBUG)
 class FooSpider:
     name = 'foo'
 
+    def parse(self):
+        pass
+
 
 spider = FooSpider()
 
@@ -73,14 +76,14 @@ def test_process_pool_downloader():
         assert 'now' in result[0].text
 
 
-def test_gevent_pool_downloader():
-    # from gevent import monkey
-    # monkey.patch_socket()
-
-    d = GeventDownloader(max_workers=5)
-    reqs = [Request('https://now.httpbin.org/', spider) for _ in range(5)]
-
-    for result in d.download(reqs):
-        assert result[0].status == 200
-        assert result[-1] is None
-        assert 'now' in result[0].text
+# def test_gevent_pool_downloader():
+#     # from gevent import monkey
+#     # monkey.patch_socket()
+#
+#     d = GeventDownloader(max_workers=5)
+#     reqs = [Request('https://now.httpbin.org/', spider) for _ in range(5)]
+#
+#     for result in d.download(reqs):
+#         assert result[0].status == 200
+#         assert result[-1] is None
+#         assert 'now' in result[0].text

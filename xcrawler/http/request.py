@@ -19,10 +19,10 @@ class Request(object):
         self.spider = spider
         self.method = method.upper()
         self.data = data
-        self.headers = headers
+        self.headers = headers or {}
         self.cookies = cookies
         self.proxy = proxy
-        self.callback = callback
+        self.callback = callback or spider.parse
         self.meta = meta
         self.dont_filter = dont_filter
         self.priority = priority

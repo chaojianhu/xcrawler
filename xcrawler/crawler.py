@@ -155,8 +155,8 @@ class Crawler(object):
         Other methods can be implemented:
         - :meth:`on_spider_started`
         - :meth:`on_spider_stopped`
-        - :meth:`on_on_crawler_started`
-        - :meth:`crawler_stopped`
+        - :meth:`on_crawler_started`
+        - :meth:`on_crawler_stopped`
         """
         if not pipeline:
             raise InvalidPipelineError
@@ -223,9 +223,5 @@ class Crawler(object):
         run_hook_method(self.global_pipelines + self.spider_pipelines,
                         'on_spider_stopped', spider)
 
-    def on_spider_idle(self, spider):
-        run_hook_method([spider], 'on_spider_idle', spider)
-        run_hook_method(self.global_extensions + self.spider_extensions,
-                        'on_spider_idle', spider)
-        run_hook_method(self.global_pipelines + self.spider_pipelines,
-                        'on_spider_idle', spider)
+    def on_engine_idle(self):
+        run_hook_method(self.spiders, 'on_engine_idle', self._engine)

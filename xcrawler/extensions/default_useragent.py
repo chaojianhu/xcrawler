@@ -26,10 +26,16 @@ class DefaultUserAgentExtension(object):
             self._user_agent = crawler.settings[self.config_key]
 
     def process_request(self, request, spider):
-        if not request or 'User-Agent' in request.headers or not self._user_agent:
+        if not request:
+            return None
+
+        if request.headers and 'User-Agent' in request.headers:
             return request
 
-        logger.debug('[{}]{} adds default user agent: '
-                     '{!r}'.format(spider, request, self._user_agent))
+        if not self._user_agent:
+            return request
+
+        logger.debug('{} adds default user agent: '
+                     '{!r}'.format(request, self._user_agent))
         request.headers['User-Agent'] = self._user_agent
         return request

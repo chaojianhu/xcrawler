@@ -11,7 +11,7 @@ I'm very interested in web crawling, however, I'm just a newbie to web scraping.
 
 # Features
 - Simple: extremely easy to customize your own spider;
-- Fast: multiple requests are spawned concurrently with the threading-downloader or gevent-downloader;
+- Fast: multiple requests are spawned concurrently with the `ThreadPoolDownloader` or `ProcessPoolDownloader`;
 - Flexible: different scheduling strategies are provided -- FIFO/FILO/Priority based;
 - Extensible: write your own extensions to make your crawler much more powerful.
 
