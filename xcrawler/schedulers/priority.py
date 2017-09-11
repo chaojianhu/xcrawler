@@ -13,16 +13,19 @@ class PriorityBasedScheduler(object):
     def __init__(self, maxsize=None):
         self._requests = []
         self.maxsize = maxsize or float('inf')
+        self._count = 0
 
     def __repr__(self):
         return 'FIFOScheduler()'
 
     def add(self, req):
-        heappush(self._requests, (req.priority, 0, req))
+        heappush(self._requests, (req.priority, self._count, req))
+        self._count += 1
 
     def pop(self):
         try:
             _, _, req = heappop(self._requests)
+            self._count -= 1
             return req
         except IndexError:
             return None

@@ -25,6 +25,9 @@ class BaseSpider(object):
     def __repr__(self):
         return '<{} name="{}">'.format(self.__class__.__name__, self.name)
 
+    def __str__(self):
+        return 'spider:' + self.name
+
     def start_requests(self):
         for url in self.start_urls:
             yield self.make_request_from_url(url)

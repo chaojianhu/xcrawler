@@ -20,7 +20,7 @@ class Response(object):
         self.url = url
         self.base_url = base_url(url)
         self.cookies = cookies
-        self.headers = headers
+        self.headers = headers or {}
         self.status = status
         self.content = content
         self.encoding = encoding
