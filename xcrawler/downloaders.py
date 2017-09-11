@@ -8,7 +8,10 @@
 
 import requests
 import logging
-from concurrent.futures import ThreadPoolExecutor, ProcessPoolExecutor, as_completed
+from concurrent.futures import (ThreadPoolExecutor,
+                                ProcessPoolExecutor,
+                                as_completed,
+                                TimeoutError)
 from .errors import (UnsupportedRequestMethod, HTTPTimeoutError,
                      HTTPStatusError, HTTPConnectionError)
 from .http import Request, Response
@@ -72,9 +75,9 @@ class ThreadPoolDownloader(BaseDownloader):
             return None
 
         with ThreadPoolExecutor(self._max_workers) as executor:
-            futures = []
+            futures = {}
             for req in reqs:
-                futures.append(executor.submit(self.send_request, req))
+                futures[executor.submit(self.send_request, req)] = req
 
             for future in as_completed(futures):
                 yield future.result()

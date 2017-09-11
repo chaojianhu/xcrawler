@@ -30,7 +30,6 @@ class CrawlerEngine(object):
         self._scheduler = crawler.scheduler(2 * self._concurrent_requests)
         self._results_queue = Queue(self._scheduler.maxsize)
         self._download_delay = crawler.settings.get('CONCURRENT_REQUESTS', 0)
-        self._active_downloaders = 0
         self._buffered_requests = deque()
 
         self._downloader = crawler.downloader(
@@ -83,9 +82,6 @@ class CrawlerEngine(object):
 
     def _run_downloaders(self):
         def download():
-            with self._engine_lock:
-                self._active_downloaders += 1
-
             reqs = []
             for _ in range(self._concurrent_requests):
                 if self._scheduler.is_empty():
@@ -94,9 +90,6 @@ class CrawlerEngine(object):
 
             for result in self._downloader.download(reqs):
                 self._results_queue.put(result)
-
-            with self._engine_lock:
-                self._active_downloaders -= 1
 
         tick = 0
         download_delay = self._download_delay * 1000
@@ -121,8 +114,11 @@ class CrawlerEngine(object):
             try:
                 reqresp, err = self._results_queue.get(timeout=.1)
             except Empty:
-                if self._active_downloaders <= 0 and \
-                        self._scheduler.is_empty() \
+                print('scheduler is empty: {}, buffered_requests: {}'.
+                      format(self._scheduler.is_empty(),
+                             len(self._buffered_requests)))
+
+                if self._scheduler.is_empty() \
                         and len(self._buffered_requests) == 0:
                     idle_count += 1
                     if idle_count * 100 > self._idle_timeout * 1000:
