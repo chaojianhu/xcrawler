@@ -9,6 +9,7 @@
 import logging
 import threading
 import time
+from pprint import pformat
 from collections import deque, Mapping
 from queue import Queue, Empty
 
@@ -75,7 +76,8 @@ class CrawlerEngine(object):
     def schedule_request(self, req):
         req = self._process_request(req)
         if isinstance(req, Request):
-            self._scheduler.add(req)
+            with self._engine_lock:
+                self._scheduler.add(req)
 
     def append_request(self, req):
         self._buffered_requests.append(req)
@@ -86,10 +88,11 @@ class CrawlerEngine(object):
                 self._active_downloaders += 1
 
             reqs = []
-            for _ in range(self._concurrent_requests):
-                if self._scheduler.is_empty():
-                    break
-                reqs.append(self._scheduler.pop())
+            with self._engine_lock:
+                for _ in range(self._concurrent_requests):
+                    if self._scheduler.is_empty():
+                        break
+                    reqs.append(self._scheduler.pop())
 
             for result in self._downloader.download(reqs):
                 self._results_queue.put(result)
@@ -239,7 +242,7 @@ class CrawlerEngine(object):
         """Invoke all the extensions to process the parsed items.
         """
         logger.debug('Parsed item for spider {}: {}'.format(request.spider,
-                                                            item))
+                                                            pformat(item)))
         for pipe in self.crawler.global_pipelines + \
                 self.crawler.spider_pipelines:
             if not hasattr(pipe, 'process_item'):
