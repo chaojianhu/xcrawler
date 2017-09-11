@@ -12,10 +12,10 @@ from xcrawler import BaseSpider
 class DoubanMovieSpider(BaseSpider):
     name = 'douban_movie'
     custom_settings = {}
-    start_urls = ['https://movie.douban.com']
+    start_urls = ['https://movie.douban.com/chart']
 
     def parse(self, response):
         # extract items from response
         # yield new requests
         # yield new items
-        pass
+        print(response.text)

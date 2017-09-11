@@ -22,7 +22,7 @@ class CrawlerEngine(object):
 
     def __init__(self, crawler):
         self._is_running = False
-        self._idle_timeout = crawler.settings.get('ENGINE_IDLE_TIMEOUT', 4)
+        self._idle_timeout = crawler.settings.get('ENGINE_IDLE_TIMEOUT', 2)
         self.crawler = crawler
 
         self._concurrent_requests = crawler.settings.get('CONCURRENT_REQUESTS', 8)
@@ -37,6 +37,7 @@ class CrawlerEngine(object):
             crawler.settings.get('DOWNLOAD_TIMEOUT'))
 
         self._spiders = {}
+        self._initial_requests_iters = None
 
     def start(self):
         if self._is_running:
@@ -49,27 +50,27 @@ class CrawlerEngine(object):
         for s in self.spiders:
             self.crawler.on_spider_started(s)
 
+        self._initial_requests_iters = deque([x.start_requests() for x
+                                              in self.spiders])
         self._init_scheduler_with_seed_requests()
 
         # start downloader thread
-        down_thread = threading.Thread(target=self._run_downloader,
+        down_thread = threading.Thread(target=self._run_downloaders,
                                        daemon=True)
         down_thread.start()
         self._run_until_complete()
 
     def _init_scheduler_with_seed_requests(self):
-        spiders = deque(self.spiders)
-
-        while len(spiders) > 0 and \
+        while len(self._initial_requests_iters) > 0 and \
                 not self._scheduler.is_full():
-            spider = spiders.pop()
+            it = self._initial_requests_iters.pop()
             try:
-                self.schedule_request(next(spider.start_requests()))
+                self.schedule_request(next(it))
             except StopIteration:
                 continue
             else:
                 # push back to the deque for the next loop
-                spiders.appendleft(spider)
+                self._initial_requests_iters.appendleft(it)
 
     def schedule_request(self, req):
         req = self._process_request(req)
@@ -79,7 +80,7 @@ class CrawlerEngine(object):
     def append_request(self, req):
         self._buffered_requests.append(req)
 
-    def _run_downloader(self):
+    def _run_downloaders(self):
         def download():
             with self._engine_lock:
                 self._active_downloaders += 1
@@ -107,7 +108,7 @@ class CrawlerEngine(object):
                 tick = 0
 
                 if self._results_queue.qsize() < self._results_queue.maxsize:
-                    threading.Thread(target=download, daemon=True)
+                    threading.Thread(target=download, daemon=True).start()
 
             # sleep 1 ms
             time.sleep(.001)
@@ -119,6 +120,7 @@ class CrawlerEngine(object):
             try:
                 reqresp, err = self._results_queue.get(timeout=1)
             except Empty:
+                print('Empty result queue...')
                 if self._active_downloaders <= 0 and \
                         self._scheduler.is_empty() \
                         and len(self._buffered_requests) == 0:
@@ -137,6 +139,11 @@ class CrawlerEngine(object):
                     self.append_request(result)
                 elif isinstance(result, Response):
                     parsed_results = result.callback(result)
+                    try:
+                        iter(parsed_results)
+                    except TypeError:
+                        continue
+
                     for item in parsed_results:
                         if isinstance(item, Request):
                             self.append_request(item)
@@ -153,7 +160,7 @@ class CrawlerEngine(object):
             try:
                 self.schedule_request(self._buffered_requests.popleft())
             except IndexError:
-                continue
+                break
 
     def _process_request(self, request):
         """Invoke all the extensions to process the input request.
@@ -164,6 +171,9 @@ class CrawlerEngine(object):
         logger.debug('Processing request: {}'.format(request))
         for ext in self.crawler.global_extensions \
                 + self.crawler.spider_extensions:
+            if not hasattr(ext, 'process_request'):
+                continue
+
             request = ext.process_request(request, request.spider)
             if request is None:
                 return None
@@ -180,6 +190,9 @@ class CrawlerEngine(object):
         logger.debug('Processing response: {}'.format(response))
         for ext in self.crawler.global_extensions \
                 + self.crawler.spider_extensions:
+            if not hasattr(ext, 'process_response'):
+                continue
+
             if isinstance(response, Response):
                 response = ext.process_response(response,
                                                 response.request,
@@ -204,6 +217,9 @@ class CrawlerEngine(object):
                      'response: {}'.format(req_or_resp))
         for ext in self.crawler.global_extensions \
                 + self.crawler.spider_extensions:
+            if not hasattr(ext, 'process_http_error'):
+                continue
+
             if isinstance(req_or_resp, Request):
                 req_or_resp = ext.process_http_error(error, None,
                                                      req_or_resp,
@@ -226,6 +242,9 @@ class CrawlerEngine(object):
                                                             item))
         for pipe in self.crawler.global_pipelines + \
                 self.crawler.spider_pipelines:
+            if not hasattr(pipe, 'process_item'):
+                continue
+
             if isinstance(item, Mapping):
                 item = pipe.process_item(item, request, request.spider)
             else:
