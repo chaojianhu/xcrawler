@@ -59,8 +59,9 @@ class DoubanMovieSpider(BaseSpider):
                                             '/h1/span[1]/text()').strip()
 
         # to pure text
-        soup = BeautifulSoup(html.tostring(self.xpath_first(html_root,
-                                                            '//div[@id="info"]')))
+        soup = BeautifulSoup(html.tostring(
+            self.xpath_first(html_root,
+                             '//div[@id="info"]')), 'html')
         for line in soup.get_text().splitlines():
             try:
                 left, *right = line.split(':')

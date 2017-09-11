@@ -23,7 +23,7 @@ class CrawlerEngine(object):
 
     def __init__(self, crawler):
         self._is_running = False
-        self._idle_timeout = crawler.settings.get('ENGINE_IDLE_TIMEOUT', 2)
+        self._idle_timeout = crawler.settings.get('ENGINE_IDLE_TIMEOUT', 5)
         self.crawler = crawler
 
         self._concurrent_requests = crawler.settings.get('CONCURRENT_REQUESTS', 8)
@@ -76,8 +76,7 @@ class CrawlerEngine(object):
     def schedule_request(self, req):
         req = self._process_request(req)
         if isinstance(req, Request):
-            with self._engine_lock:
-                self._scheduler.add(req)
+            self._scheduler.add(req)
 
     def append_request(self, req):
         self._buffered_requests.append(req)
@@ -88,11 +87,10 @@ class CrawlerEngine(object):
                 self._active_downloaders += 1
 
             reqs = []
-            with self._engine_lock:
-                for _ in range(self._concurrent_requests):
-                    if self._scheduler.is_empty():
-                        break
-                    reqs.append(self._scheduler.pop())
+            for _ in range(self._concurrent_requests):
+                if self._scheduler.is_empty():
+                    break
+                reqs.append(self._scheduler.pop())
 
             for result in self._downloader.download(reqs):
                 self._results_queue.put(result)
@@ -121,14 +119,13 @@ class CrawlerEngine(object):
 
         while self._is_running:
             try:
-                reqresp, err = self._results_queue.get(timeout=1)
+                reqresp, err = self._results_queue.get(timeout=.1)
             except Empty:
-                print('Empty result queue...')
                 if self._active_downloaders <= 0 and \
                         self._scheduler.is_empty() \
                         and len(self._buffered_requests) == 0:
                     idle_count += 1
-                    if idle_count > self._idle_timeout:
+                    if idle_count * 100 > self._idle_timeout * 1000:
                         break
                     self.engine_idle()
             else:

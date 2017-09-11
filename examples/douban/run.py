@@ -15,8 +15,8 @@ from examples.douban.pipelines import JsonLineStoragePipeline
 def main():
     settings = {
         'download_timeout': 16,
-        'download_delay': .5,
-        'concurrent_requests': 10,
+        'download_delay': 1.5,
+        'concurrent_requests': 6,
         'storage_path': '/tmp/hello.jl',
         'default_user_agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_6) '
                               'AppleWebKit/603.3.8 (KHTML, like Gecko) Version'

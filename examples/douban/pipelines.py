@@ -26,4 +26,4 @@ class JsonLineStoragePipeline(object):
 
     def process_item(self, item, request, spider):
         if item and isinstance(item, dict):
-            self._file.writeline(json.dumps(item))
+            print(json.dumps(item), file=self._file)
