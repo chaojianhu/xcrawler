@@ -114,10 +114,6 @@ class CrawlerEngine(object):
             try:
                 reqresp, err = self._results_queue.get(timeout=.1)
             except Empty:
-                print('scheduler is empty: {}, buffered_requests: {}'.
-                      format(self._scheduler.is_empty(),
-                             len(self._buffered_requests)))
-
                 if self._scheduler.is_empty() \
                         and len(self._buffered_requests) == 0:
                     idle_count += 1
