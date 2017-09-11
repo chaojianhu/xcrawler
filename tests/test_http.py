@@ -13,6 +13,9 @@ from xcrawler.http.response import Response
 class Spider:
     name = 'foo_spider'
 
+    def parse(self):
+        pass
+
 
 spider = Spider()
 
