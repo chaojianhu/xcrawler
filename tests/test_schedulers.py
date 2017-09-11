@@ -14,6 +14,7 @@ from xcrawler.schedulers.priority import PriorityBasedScheduler
 def test_fifo_scheduler():
     sch = FIFOScheduler()
     assert len(sch) == 0
+    assert sch.is_empty() is True
     sch.add(0)
     sch.add(1)
     assert len(sch) == 2
@@ -29,6 +30,11 @@ def test_fifo_scheduler():
 
     sch.clear()
     assert len(sch) == 0
+
+    sch2 = FIFOScheduler(2)
+    sch2.add(1)
+    sch2.add(2)
+    assert sch2.is_full() is True
 
 
 def test_filo_scheduler():
@@ -49,6 +55,12 @@ def test_filo_scheduler():
 
     sch.clear()
     assert len(sch) == 0
+
+    sch2 = FILOScheduler(2)
+    assert sch2.is_empty() is True
+    sch2.add(1)
+    sch2.add(2)
+    assert sch2.is_full() is True
 
 
 def test_priority_based_scheduler():
@@ -80,3 +92,9 @@ def test_priority_based_scheduler():
     sch.add(Req(3, 10))
     sch.clear()
     assert len(sch) == 0
+
+    sch2 = PriorityBasedScheduler(2)
+    assert sch2.is_empty() is True
+    sch2.add(Req(3, 1))
+    sch2.add(Req(4, 1))
+    assert sch2.is_full() is True

@@ -155,8 +155,8 @@ class Crawler(object):
         Other methods can be implemented:
         - :meth:`on_spider_started`
         - :meth:`on_spider_stopped`
-        - :meth:`on_on_crawler_started`
-        - :meth:`crawler_stopped`
+        - :meth:`on_crawler_started`
+        - :meth:`on_crawler_stopped`
         """
         if not pipeline:
             raise InvalidPipelineError

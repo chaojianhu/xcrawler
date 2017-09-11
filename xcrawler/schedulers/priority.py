@@ -10,8 +10,9 @@ from heapq import heappop, heappush
 
 
 class PriorityBasedScheduler(object):
-    def __init__(self):
+    def __init__(self, maxsize=None):
         self._requests = []
+        self._maxsize = maxsize or float('inf')
 
     def __repr__(self):
         return 'FIFOScheduler()'
@@ -28,6 +29,12 @@ class PriorityBasedScheduler(object):
 
     def clear(self):
         self._requests.clear()
+
+    def is_full(self):
+        return len(self) == self._maxsize
+
+    def is_empty(self):
+        return len(self) == 0
 
     def __len__(self):
         return len(self._requests)

@@ -15,9 +15,10 @@ class CrawlerEngine(object):
     def __init__(self, crawler):
         self._is_running = False
         self.crawler = crawler
+        self.concurrent_requests = crawler.settings.get('CONCURRENT_REQUESTS')
         self._scheduler = crawler.scheduler()
         self._downloader = crawler.downloader(
-            crawler.settings.get('CONCURRENT_REQUESTS'),
+            self.concurrent_requests,
             crawler.settings.get('DOWNLOAD_TIMEOUT'))
 
         self._spiders = {}
