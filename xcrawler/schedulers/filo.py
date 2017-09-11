@@ -12,7 +12,7 @@ from collections import deque
 class FILOScheduler(object):
     def __init__(self, maxsize=None):
         self._requests = deque(maxlen=maxsize)
-        self._maxsize = maxsize
+        self.maxsize = maxsize
 
     def __repr__(self):
         return 'FILOScheduler()'
@@ -30,7 +30,7 @@ class FILOScheduler(object):
         self._requests.clear()
 
     def is_full(self):
-        return len(self) == self._maxsize
+        return len(self) == self.maxsize
 
     def is_empty(self):
         return len(self) == 0

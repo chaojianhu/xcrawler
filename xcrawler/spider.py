@@ -30,7 +30,7 @@ class BaseSpider(object):
             yield self.make_request_from_url(url)
 
     def make_request_from_url(self, url):
-        return Request(url, callback=self.parse)
+        return Request(url, spider=self, callback=self.parse)
 
     def parse(self, response):
         raise NotImplementedError
