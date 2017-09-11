@@ -127,6 +127,7 @@ class CrawlerEngine(object):
                     idle_count += 1
                     if idle_count * 100 > self._idle_timeout * 1000:
                         break
+
                     self.engine_idle()
             else:
                 idle_count = 0
@@ -137,7 +138,8 @@ class CrawlerEngine(object):
 
                 if isinstance(result, Request):
                     self.append_request(result)
-                elif isinstance(result, Response):
+
+                if isinstance(result, Response):
                     parsed_results = result.callback(result)
                     try:
                         iter(parsed_results)
@@ -147,7 +149,7 @@ class CrawlerEngine(object):
                     for item in parsed_results:
                         if isinstance(item, Request):
                             self.append_request(item)
-                        elif isinstance(item, Mapping):
+                        if isinstance(item, Mapping):
                             self._process_item(item, result.request)
 
             self._init_scheduler_with_seed_requests()
@@ -254,7 +256,7 @@ class CrawlerEngine(object):
         if not self._is_running:
             raise RuntimeError('Crawler engine has already stopped')
 
-        logger.info('Start crawler engine')
+        logger.info('Stop crawler engine')
         self._is_running = False
         self._scheduler.clear()
         self.crawler.on_crawler_stopped()

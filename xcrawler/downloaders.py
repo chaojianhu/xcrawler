@@ -17,6 +17,8 @@ logger = logging.getLogger(__name__)
 
 
 class BaseDownloader(object):
+    name = 'base_downloader'
+
     def __init__(self, max_workers=None, download_timeout=None):
         self._max_workers = max_workers
         self._download_timeout = download_timeout if \
@@ -33,7 +35,7 @@ class BaseDownloader(object):
         assert isinstance(req, Request)
 
         try:
-            logger.debug('Send request: {}'.format(req))
+            logger.debug('[{}]Send request: {}'.format(self.name, req))
             if req.method == 'GET':
                 resp = requests.get(req.url, headers=req.headers,
                                     cookies=req.cookies,
@@ -63,6 +65,8 @@ class BaseDownloader(object):
 
 
 class ThreadPoolDownloader(BaseDownloader):
+    name = 'thread_pool_downloader'
+
     def download(self, reqs=None):
         if reqs is None:
             return None
@@ -77,6 +81,8 @@ class ThreadPoolDownloader(BaseDownloader):
 
 
 class ProcessPoolDownloader(BaseDownloader):
+    name = 'process_pool_downloader'
+
     def download(self, reqs=None):
         if reqs is None:
             return None
