@@ -28,6 +28,9 @@ class BaseDownloader(object):
             download_timeout is not None else 60
 
     def download(self, reqs=None):
+        if reqs is None:
+            return None
+
         for req in reqs:
             yield self.send_request(req)
 
@@ -99,23 +102,23 @@ class ProcessPoolDownloader(BaseDownloader):
                 yield future.result()
 
 
-try:
-    from gevent.pool import Group
-except ImportError:
-    class GeventDownloader(BaseDownloader):
-        pass
-else:
-    from gevent import monkey, spawn
-    from gevent.pool import Pool
-    from gevent.queue import Queue
+#
+# try:
+#     from gevent.pool import Group
+# except ImportError:
+#     class GeventDownloader(BaseDownloader):
+#         pass
+# else:
+#     from gevent import monkey, spawn
+#     from gevent.pool import Pool
+#     from gevent.queue import Queue
+#
+#
+#     class GeventDownloader(BaseDownloader):
+#         def __init__(self, max_workers=None, download_timeout=None):
+#             super().__init__(max_workers, download_timeout)
+#
+#         def download(self, reqs=None):
+#             pass
 
-
-    class GeventDownloader(BaseDownloader):
-        def __init__(self, max_workers=None, download_timeout=None):
-            super().__init__(max_workers, download_timeout)
-
-        def download(self, reqs=None):
-            pass
-
-__all__ = ['ThreadPoolDownloader', 'ProcessPoolDownloader',
-           'GeventDownloader', 'BaseDownloader']
+__all__ = ['ThreadPoolDownloader', 'ProcessPoolDownloader', 'BaseDownloader']
