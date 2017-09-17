@@ -57,8 +57,8 @@ def test_base_downloader(monkeypatch):
 
 
 def test_thread_pool_downloader():
-    d = ThreadPoolDownloader(max_workers=20)
-    reqs = [Request('https://now.httpbin.org/', spider) for _ in range(1, 20)]
+    d = ThreadPoolDownloader(max_workers=5)
+    reqs = [Request('https://now.httpbin.org/', spider) for _ in range(1, 5)]
 
     for result in d.download(reqs):
         assert result[0].status == 200

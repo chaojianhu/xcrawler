@@ -86,8 +86,9 @@ def run_hook_method(objs, method_name, *method_args, **method_kwargs):
 
 def dict_keys_to_upper(d):
     if not d:
-        return {}
+        return d
     try:
         return {k.upper(): v for k, v in d.items()}
     except AttributeError:
         return d
+
