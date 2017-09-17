@@ -1,7 +1,7 @@
 A light-weight web crawler framework: xcrawler
 ------------------------
 
-[![Build Status](https://www.travis-ci.org/0xE8551CCB/xcrawler.svg?branch=feature-refactor-architecture)](https://www.travis-ci.org/0xE8551CCB/xcrawler) [![Coverage Status](https://coveralls.io/repos/github/0xE8551CCB/xcrawler/badge.svg?branch=master)](https://coveralls.io/github/0xE8551CCB/xcrawler?branch=master)
+[![Build Status](https://www.travis-ci.org/0xE8551CCB/xcrawler.svg?branch=feature-refactor-architecture)](https://www.travis-ci.org/0xE8551CCB/xcrawler) [![Coverage Status](https://coveralls.io/repos/github/0xE8551CCB/xcrawler/badge.svg)](https://coveralls.io/github/0xE8551CCB/xcrawler)
 
 # Introduction
 [xcrawler](https://github.com/ChrisLeeGit/xcrawler), it's a light-weight web crawler framework. Some of its design concepts are borrowed from the well-known framework [Scrapy](https://github.com/scrapy).
