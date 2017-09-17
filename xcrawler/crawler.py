@@ -7,6 +7,7 @@
 """
 
 import logging
+import itertools
 from operator import itemgetter
 from collections import defaultdict
 
@@ -162,14 +163,15 @@ class Crawler(object):
             raise InvalidPipelineError
 
         if not hasattr(pipeline, 'process_item'):
-            raise InvalidExtensionError('missing method `{}`'.format('process_item'))
+            raise InvalidPipelineError('missing method `{}`'.format('process_item'))
 
     @property
     def spider_extensions(self):
-        return [ext for ext, _ in self._spider_extensions.values()]
+        return [x for x, _ in itertools.chain.from_iterable(
+            self._spider_extensions.values())]
 
     def spider_extensions_by_name(self, spider_name):
-        return [ext for ext, _ in self._spider_pipelines.get(spider_name, [])]
+        return [ext for ext, _ in self._spider_extensions.get(spider_name, [])]
 
     def add_spider_extension(self, ext, priority, spider_name):
         self._validate_extension(ext)
@@ -181,7 +183,8 @@ class Crawler(object):
 
     @property
     def spider_pipelines(self):
-        return [p for p, _ in self._spider_pipelines.values()]
+        return [x for x, _ in itertools.chain.from_iterable(
+            self._spider_pipelines.values())]
 
     def spider_pipelines_by_name(self, spider_name):
         return [pipe for pipe, _ in self._spider_pipelines.get(spider_name, [])]
