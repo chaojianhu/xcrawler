@@ -8,7 +8,8 @@
 
 import pytest
 from xcrawler.errors import InvalidURLError
-from xcrawler.helpers import (url_fingerprint, safe_url, base_url)
+from xcrawler.helpers import (url_fingerprint, safe_url, base_url,
+                              run_hook_method, dict_keys_to_upper)
 
 
 def test_url_fingerprint():
@@ -39,3 +40,30 @@ def test_base_url():
 
     assert base_url('http://www.baidu.com/foo/bar?q=david&p=maria') == 'http://www.baidu.com'
     assert base_url('https://www.baidu.com/foo/bar?q=david&p=maria') == 'https://www.baidu.com'
+
+
+def test_run_hook_method():
+    assert run_hook_method(None, 'fake_method') is None
+    assert run_hook_method([], 'fake_method') is None
+
+    class Foo(object):
+        def __init__(self):
+            self.message = None
+
+        def fake_method(self, msg):
+            self.message = msg
+
+    foo = Foo()
+    run_hook_method([foo], 'no_such_method', 'hello, world')
+    assert foo.message is None
+
+    run_hook_method([foo], 'fake_method', 'hello, world')
+    assert foo.message == 'hello, world'
+
+
+def test_dict_keys_to_upper():
+    assert dict_keys_to_upper(None) is None
+    assert dict_keys_to_upper([1, 3, 4]) == [1, 3, 4]
+    assert dict_keys_to_upper({}) == {}
+    assert dict_keys_to_upper({1: 'foo', 2: 'bar'}) == {1: 'foo', 2: 'bar'}
+    assert dict_keys_to_upper({'foo': 'foo', 'bar': 'bar'}) == {'FOO': 'foo', 'BAR': 'bar'}

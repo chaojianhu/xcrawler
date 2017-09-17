@@ -8,7 +8,6 @@
     :license: MIT, see LICENSE for more details.
 """
 
-
 class FooExtension(object):
     def __init__(self):
         pass
