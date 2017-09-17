@@ -22,11 +22,17 @@ class RetryRequestExtension(object):
 
     def on_crawler_started(self, crawler):
         self.retry_enabled = crawler.settings.get('RETRY_ENABLED', False)
+        self.max_tries = crawler.settings.get('MAX_TRIES', 3)
         self.retry_on_timeout = crawler.settings.get('RETRY_ON_TIMEOUT', False)
         self.retry_on_connection_error = crawler.settings.get('RETRY_ON_CONNECTION_ERROR', False)
-        self.retry_on_status_code += set(crawler.settings.get('RETRY_ON_STATUS_CODE', []))
+
+        for code in crawler.settings.get('RETRY_ON_STATUS_CODE', []):
+            self.retry_on_status_code.add(code)
 
     def process_http_error(self, error, response, request, spider):
+        if self.retry_enabled is False:
+            return None
+
         if isinstance(error, HTTPTimeoutError) and self.retry_on_timeout and \
                 request and request.retry_count < self.max_tries:
             request.retry_count += 1
